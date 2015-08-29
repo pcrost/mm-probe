@@ -22,7 +22,7 @@ static void segv_handler(int signo, siginfo_t *info, void *opaque)
         int i;
 
         fprintf(stderr, "segfaulted addr is %p\n", info->si_addr);
-        mprotect((uintptr_t)info->si_addr & PAGE_MASK, 1,
+        mprotect((void *)((uintptr_t)info->si_addr & PAGE_MASK), 1,
                  PROT_READ | PROT_WRITE);
         perror("unprotecting segafaulted addess");
         segfaulted = true;
@@ -36,13 +36,13 @@ static void check_access(void *address, bool fault_expected)
     int checkval = 0xDEADBEEF;
 
     segfaulted = false;
-    
+
     fprintf(stderr, "testing address %p = %x\n", iptr, checkval);
     *iptr = checkval;
     readback = *iptr;
     if (readback != checkval) {
         fprintf(stderr, "readback of %p, exp: %x act: %x\n",
-                checkval, readback);
+                iptr, checkval, readback);
         exit(1);
     }
 
@@ -85,7 +85,7 @@ int main(void)
            mapping + REMAPPED_PAGE_LOC);
     perror("little map mremap");
 
-    check_access(mapping + UNPROTECTED_PAGE_LOC, false);    
+    check_access(mapping + UNPROTECTED_PAGE_LOC, false);
     check_access(mapping + REMAPPED_PAGE_LOC, false);
     check_access(mapping + (UNPROTECTED_PAGE_LOC +
                             REMAPPED_PAGE_LOC) / 2, true);
@@ -95,6 +95,6 @@ int main(void)
                             REMAPPED_PAGE_LOC) / 2, false);
     check_access(mapping + (UNPROTECTED_PAGE_LOC +
                             REMAPPED_PAGE_LOC), false);
-    check_access(mapping + UNPROTECTED_PAGE_LOC, false);    
+    check_access(mapping + UNPROTECTED_PAGE_LOC, false);
     check_access(mapping + REMAPPED_PAGE_LOC, false);
 }
