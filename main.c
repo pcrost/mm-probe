@@ -1,3 +1,9 @@
+/*
+ * (C) 2015 P. Crosthwaite
+ *
+ *  GPL v2. See COPYING for details
+ */
+
 #define _GNU_SOURCE
 
 #include <sys/mman.h>
